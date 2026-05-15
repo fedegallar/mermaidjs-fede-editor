@@ -9,7 +9,7 @@ interface Props {
 
 export default function DiagramTypeSelector({ active, onChange }: Props) {
   return (
-    <nav className="flex flex-row lg:flex-col gap-1 p-2 bg-white border-b lg:border-b-0 lg:border-r border-gray-200 overflow-x-auto lg:overflow-visible lg:w-[180px] lg:min-w-[180px]">
+    <nav className="flex flex-row lg:flex-col gap-1 p-2 bg-white overflow-x-auto lg:overflow-visible lg:w-[180px] lg:min-w-[180px]">
       <p className="hidden lg:block text-xs font-semibold text-gray-400 uppercase tracking-wider px-2 py-1">
         Diagramas
       </p>
@@ -28,7 +28,6 @@ export default function DiagramTypeSelector({ active, onChange }: Props) {
         </button>
       ))}
 
-      {/* Placeholder for future types */}
       <div className="hidden lg:flex flex-col gap-1 mt-2 pt-2 border-t border-gray-100">
         <p className="text-xs text-gray-400 px-2">Próximamente</p>
         {["Flowchart", "Sequence", "Gantt", "ER Diagram"].map((label) => (

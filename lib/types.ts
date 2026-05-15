@@ -15,7 +15,7 @@ export interface MindMapNode {
   order: number;
 }
 
-export type DiagramType = "mindmap";
+export type DiagramType = "mindmap" | "classDiagram";
 
 export interface DiagramTypeConfig {
   id: DiagramType;
@@ -30,6 +30,12 @@ export const DIAGRAM_TYPES: DiagramTypeConfig[] = [
     label: "Mindmap",
     description: "Mapa mental jerárquico",
     icon: "🧠",
+  },
+  {
+    id: "classDiagram",
+    label: "Clases",
+    description: "Diagrama de clases UML",
+    icon: "🗂️",
   },
 ];
 

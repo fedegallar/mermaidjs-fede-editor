@@ -2,14 +2,22 @@
 
 import { useState, useRef } from "react";
 import { X, Upload, Download, Copy, Check } from "lucide-react";
-import { useMindMapStore } from "@/lib/store";
 
 interface Props {
+  syntax: string;
+  onImport: (syntax: string) => void;
+  diagramLabel: string;
+  syntaxKeyword: string; // "mindmap" | "classDiagram"
   onClose: () => void;
 }
 
-export default function ImportExportModal({ onClose }: Props) {
-  const { mermaidSyntax, importFromSyntax } = useMindMapStore();
+export default function ImportExportModal({
+  syntax,
+  onImport,
+  diagramLabel,
+  syntaxKeyword,
+  onClose,
+}: Props) {
   const [tab, setTab] = useState<"export" | "import">("export");
   const [importText, setImportText] = useState("");
   const [copied, setCopied] = useState(false);
@@ -17,13 +25,13 @@ export default function ImportExportModal({ onClose }: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
 
   const handleCopy = async () => {
-    await navigator.clipboard.writeText(mermaidSyntax);
+    await navigator.clipboard.writeText(syntax);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
   const handleDownload = () => {
-    const blob = new Blob([mermaidSyntax], { type: "text/plain" });
+    const blob = new Blob([syntax], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -35,14 +43,14 @@ export default function ImportExportModal({ onClose }: Props) {
   const handleImport = () => {
     const text = importText.trim();
     if (!text) {
-      setImportError("Pega o carga el contenido Mermaid.");
+      setImportError("Pega o cargá el contenido Mermaid.");
       return;
     }
-    if (!text.startsWith("mindmap")) {
-      setImportError("Solo se soporta sintaxis mindmap por ahora.");
+    if (!text.startsWith(syntaxKeyword)) {
+      setImportError(`El diagrama debe comenzar con "${syntaxKeyword}".`);
       return;
     }
-    importFromSyntax(text);
+    onImport(text);
     onClose();
   };
 
@@ -58,14 +66,20 @@ export default function ImportExportModal({ onClose }: Props) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
+      onClick={onClose}
+    >
       <div
         className="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-200">
-          <h2 className="font-semibold text-gray-800">Importar / Exportar</h2>
+          <div>
+            <h2 className="font-semibold text-gray-800">Importar / Exportar</h2>
+            <p className="text-xs text-gray-400 mt-0.5">{diagramLabel}</p>
+          </div>
           <button onClick={onClose} className="p-1 rounded hover:bg-gray-100 text-gray-500">
             <X size={16} />
           </button>
@@ -93,7 +107,7 @@ export default function ImportExportModal({ onClose }: Props) {
           {tab === "export" ? (
             <div className="flex flex-col gap-3">
               <pre className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-xs font-mono overflow-auto max-h-64 text-gray-700 whitespace-pre">
-                {mermaidSyntax}
+                {syntax}
               </pre>
               <div className="flex gap-2">
                 <button
@@ -121,16 +135,23 @@ export default function ImportExportModal({ onClose }: Props) {
                 <Upload size={14} />
                 Cargar archivo .mmd
               </button>
-              <input ref={fileRef} type="file" accept=".mmd,.txt" className="hidden" onChange={handleFile} />
+              <input
+                ref={fileRef}
+                type="file"
+                accept=".mmd,.txt"
+                className="hidden"
+                onChange={handleFile}
+              />
               <textarea
                 value={importText}
-                onChange={(e) => { setImportText(e.target.value); setImportError(""); }}
-                placeholder="Pega aquí tu sintaxis Mermaid…&#10;&#10;mindmap&#10;  root((Mi mapa))&#10;    Tema 1&#10;      Subtema"
+                onChange={(e) => {
+                  setImportText(e.target.value);
+                  setImportError("");
+                }}
+                placeholder={`Pega aquí tu sintaxis Mermaid…\n\n${syntaxKeyword}\n  …`}
                 className="w-full h-48 p-3 text-xs font-mono bg-gray-50 border border-gray-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
-              {importError && (
-                <p className="text-xs text-red-600">{importError}</p>
-              )}
+              {importError && <p className="text-xs text-red-600">{importError}</p>}
               <button
                 onClick={handleImport}
                 className="px-4 py-2 text-sm bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
